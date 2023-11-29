@@ -1,0 +1,13 @@
+pipeline {
+    agent any 
+    stages {
+    stage('Print Readme.md') {
+            steps {
+                // Den Inhalt der Datei README.md ausgeben
+                sh 'cat README.md'
+            }
+
+        }
+  
+    }
+}

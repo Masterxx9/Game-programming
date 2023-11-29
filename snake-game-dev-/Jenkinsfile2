@@ -1,0 +1,89 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+        stage('Quality Check') {
+            steps {
+          // Run the checkstyle plugin to check the code quality of the snake game. The results of this stage are recorded in the 'post' section below.
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage('Test Position') {
+            steps {
+              sh 'mvn test -Dtest="de.thu.snake.entities.utils.PositionTest"'
+            }
+        }
+        //TODO Aufgabe 2.2 : Diese Test-Stage enthält einen Bug. Sie sollten ihn beheben
+        stage('Test Food') {
+            steps {
+            // hier wird die Methode getPosition getestet
+              sh 'mvn test -Dtest="de.thu.snake.entities.FoodTest#getPosition"'
+            // hier wird die Methode regenerate getestet
+              sh 'mvn test -Dtest="de.thu.snake.entities.FoodTest#regenerate"'
+            // hier wird die Methode getPoints getestet
+              sh 'mvn test -Dtest="de.thu.snake.entities.FoodTest#getPoints"'
+            // hier wird die Methode getView getestet
+              sh 'mvn test -Dtest="de.thu.snake.entities.FoodTest#getView"'
+            }
+        }
+        //TODO Aufgabe 3 : Schreiben Sie weitere Test-Stages für die Klasse Snake. Die kalsse SnakeTest befindet sich im Package de.thu.snake.entities. Der vollständige Package Name ist de.thu.snake.entities.SnakeTest
+        // stage('Test Snake') {
+        //     steps {
+        //       sh 'mvn test -Dtest="de.thu.snake.entities.SnakeTest"'
+        //     }
+        // }
+        // //TODO Aufgabe 4 : Schreiben Sie weitere Test-Stages für die Klasse World. Die kalsse WorldTest befindet sich im Package de.thu.snake.entities. Der vollständige Package Name ist de.thu.snake.entities.WorldTest
+        // stage('Test World') {
+        //     steps {
+        //       sh 'mvn test -Dtest="de.thu.snake.entities.WorldTest"'
+        //     }
+        // }
+
+        // stage('Test Game') {
+        //     steps {
+        //       sh 'mvn test -Dtest="de.thu.snake.entities.GameTest"'
+        //     }
+        // }
+    //     stage('Test GameOverMenuTest') {
+    //         steps {
+
+    //           sh 'mvn test -Dtest="de.thu.snake.menus.GameOverMenuTest"'
+    //         }
+    //     }
+    //     stage('Test SettingsMenuTest') {
+    //         steps {
+
+    //           sh 'mvn test -Dtest="de.thu.snake.menus.SettingsMenuTest"'
+    //         }
+    //     }
+    //  stage('Test MainMenu') {
+    //         steps {
+    //           sh 'mvn test -Dtest="de.thu.snake.menus.MainMenuTest"'
+    //         }
+    //     }
+    }
+    // After all tests have been run, always record the results
+        post{
+            always{
+                // Record the test results in Jenkins for the current build 
+                junit(
+                allowEmptyResults: true,
+                testResults: '**/target/surefire-reports/*.xml')
+
+                // Record the code coverage results in Jenkins for the current build
+                recordIssues(
+                enabledForFailure: true,
+                aggregatingResults: true,
+                tool:checkStyle(pattern: '**/target/checkstyle-result.xml'),
+                   
+              
+            )
+            }
+       
+        
+        }
+}
